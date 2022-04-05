@@ -7,7 +7,7 @@ module.exports = {
     const payload = {
       notification: {
         title: "TANK ALERT",
-        body: "Tank #1 is below 20%. Please refill immediately.",
+        body: "Tank #1 is below 10%. Please refill immediately.",
         badge: "1",
         sound: "default",
       },
@@ -18,7 +18,7 @@ module.exports = {
       .ref("fcm-token")
       .once("value")
       .then((allToken) => {
-        if (allToken.val() && evt.after.val() <= 20) {
+        if (allToken.val() && evt.after.val() <= 10) {
           console.log("token available");
           const token = Object.keys(allToken.val());
           return admin.messaging().sendToDevice(token, payload);
@@ -31,7 +31,7 @@ module.exports = {
     const payload = {
       notification: {
         title: "TANK ALERT",
-        body: "Tank #2 is below 20%. Please refill immediately.",
+        body: "Tank #2 is below 10%. Please refill immediately.",
         badge: "1",
         sound: "default",
       },
@@ -42,7 +42,7 @@ module.exports = {
       .ref("fcm-token")
       .once("value")
       .then((allToken) => {
-        if (allToken.val() && evt.after.val() <= 20) {
+        if (allToken.val() && evt.after.val() <= 10) {
           console.log("token available");
           const token = Object.keys(allToken.val());
           return admin.messaging().sendToDevice(token, payload);
