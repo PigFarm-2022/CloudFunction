@@ -3,12 +3,74 @@ const admin = require("firebase-admin");
 admin.initializeApp(functions.config().firebase);
 
 module.exports = {
-  //C1 FEED NOTIF
-  cage1: functions.database.ref("cage_1/feed_tank_1").onUpdate((evt) => {
+  //CAGE 1 FEED TANK
+  cage1_feedTank: functions.database
+    .ref("cage_1/feed_tank_1")
+    .onUpdate((evt) => {
+      const payload = {
+        notification: {
+          title: "CAGE 1 ALERT",
+          body: "Tank #1 is below 15%. Please refill immediately.",
+          badge: "1",
+          sound: "default",
+        },
+      };
+
+      return admin
+        .database()
+        .ref("fcm-token")
+        .once("value")
+        .then((allToken) => {
+          if (allToken.val() && evt.after.val() <= 15) {
+            console.log("token available");
+            const token = Object.keys(allToken.val());
+            return admin.messaging().sendToDevice(token, payload);
+          } else {
+            console.log("No token available");
+          }
+        });
+    }),
+  //CAGE 2 FEED TANK
+  cage2_feedTank: functions.database
+    .ref("cage_2/feed_tank_2")
+    .onUpdate((evt) => {
+      const payload = {
+        notification: {
+          title: "CAGE 2 ALERT",
+          body: "Tank #2 is below 15%. Please refill immediately.",
+          badge: "1",
+          sound: "default",
+        },
+      };
+
+      return admin
+        .database()
+        .ref("fcm-token")
+        .once("value")
+        .then((allToken) => {
+          if (allToken.val() && evt.after.val() <= 15) {
+            console.log("token available");
+            const token = Object.keys(allToken.val());
+            return admin.messaging().sendToDevice(token, payload);
+          } else {
+            console.log("No token available");
+          }
+        });
+    }),
+  //WATER TANK
+  waterTank: functions.database.ref("tanks/water_tank").onUpdate((evt) => {
     const payload = {
       notification: {
-        title: "CAGE 1 ALERT",
-        body: "Tank #1 is below 10%. Please refill immediately.",
+        title: "WATER TANK",
+        body: "Water tank is at 50% below, Started refilling",
+        badge: "1",
+        sound: "default",
+      },
+    };
+    const payload2 = {
+      notification: {
+        title: "WATER TANK",
+        body: "Water tank is at 90% refilled",
         badge: "1",
         sound: "default",
       },
@@ -19,24 +81,28 @@ module.exports = {
       .ref("fcm-token")
       .once("value")
       .then((allToken) => {
-        if (allToken.val() && evt.after.val() <= 15) {
+        if (allToken.val() && evt.after.val() <= 50) {
           console.log("token available");
           const token = Object.keys(allToken.val());
           return admin.messaging().sendToDevice(token, payload);
+        } else if (allToken.val() && evt.after.val() >= 90) {
+          console.log("token available");
+          const token = Object.keys(allToken.val());
+          return admin.messaging().sendToDevice(token, payload2);
         } else {
           console.log("No token available");
         }
       });
   }),
 
-  //bath_1_manual_indicator
-  cage1_bath_manual_indicator: functions.database
+  //cage_1/bath_1_manual_indicator
+  cage_1_bath_1_manual_indicator: functions.database
     .ref("cage_1/bath_1_manual_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "BATH SUCCESS.",
+          body: "Manual Bath Success!",
           badge: "1",
           sound: "default",
         },
@@ -44,7 +110,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "BATH FAILED.",
+          body: "Manual Bath Failed!",
           badge: "1",
           sound: "default",
         },
@@ -58,22 +124,25 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-  //bath_1_scheduled_indicator
-  cage1_bath_scheduled_indicator: functions.database
+
+  //cage_1/bath_1_scheduled_indicator
+  cage_1_bath_1_scheduled_indicator: functions.database
     .ref("cage_1/bath_1_scheduled_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "BATH SCHEDULE SUCCESS.",
+          body: "Scheduled Bath Success!",
           badge: "1",
           sound: "default",
         },
@@ -81,7 +150,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "BATH SCHEDULE FAILED.",
+          body: "Scheduled Bath Failed!",
           badge: "1",
           sound: "default",
         },
@@ -95,23 +164,24 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-
-  //feed_1_manual_indicator
-  cage1_feed_manual_indicator: functions.database
+  //cage_1/feed_1_manual_indicator
+  cage_1_feed_1_manual_indicator: functions.database
     .ref("cage_1/feed_1_manual_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "FEED SUCCESS.",
+          body: "Manual Feed Success!",
           badge: "1",
           sound: "default",
         },
@@ -119,7 +189,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "FEED FAILED.",
+          body: "Manual Feed Failed!",
           badge: "1",
           sound: "default",
         },
@@ -133,23 +203,24 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-
-  //feed_1_scheduled_indicator
-  cage1_feed_scheduled_indicator: functions.database
+  //cage_1_feed_1_scheduled_indicator
+  cage_1_feed_1_scheduled_indicator: functions.database
     .ref("cage_1/feed_1_scheduled_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "FEED SCHEDULE SUCCESS.",
+          body: "Scheduled Feed Success!",
           badge: "1",
           sound: "default",
         },
@@ -157,7 +228,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "FEED SCHEDULE FAILED.",
+          body: "Scheduled Feed Failed!",
           badge: "1",
           sound: "default",
         },
@@ -171,23 +242,24 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-
-  //wash_manual_indicator
-  cage1_wash_manual_indicator: functions.database
+  //cage_1/wash_1_manual_indicator
+  cage_1_wash_1_manual_indicator: functions.database
     .ref("cage_1/wash_1_manual_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "WASH SUCCESS.",
+          body: "Manual Wash Success!",
           badge: "1",
           sound: "default",
         },
@@ -195,7 +267,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "WASH FAILED.",
+          body: "Manual Wash Failed!",
           badge: "1",
           sound: "default",
         },
@@ -209,22 +281,24 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-  //wash_1_scheduled_indicator
-  cage1_wash_scheduled_indicator: functions.database
+  //cage_1/wash_1_scheduled_indicator
+  cage_1_wash_1_scheduled_indicator: functions.database
     .ref("cage_1/wash_1_scheduled_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "WASH SCHEDULE SUCCESS.",
+          body: "Scheduled Wash Success!",
           badge: "1",
           sound: "default",
         },
@@ -232,7 +306,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 1 ALERT",
-          body: "WASH SCHEDULE FAILED.",
+          body: "Scheduled Wash Failed!",
           badge: "1",
           sound: "default",
         },
@@ -246,50 +320,53 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-  //C2 FEED NOTIF
-  cage2: functions.database.ref("cage_2/feed_tank_2").onUpdate((evt) => {
-    const payload = {
-      notification: {
-        title: "CAGE 2 ALERT",
-        body: "Tank #2 is below 10%. Please refill immediately.",
-        badge: "1",
-        sound: "default",
-      },
-    };
+  //cage_1/wash_1_sensor_indicator
+  cage_1_wash_1_sensor_indicator: functions.database
+    .ref("cage_1/wash_1_sensor_indicator")
+    .onUpdate((evt) => {
+      const payload = {
+        notification: {
+          title: "CAGE 1 ALERT",
+          body: "Excreta Detected, Now Washing",
+          badge: "1",
+          sound: "default",
+        },
+      };
 
-    return admin
-      .database()
-      .ref("fcm-token")
-      .once("value")
-      .then((allToken) => {
-        if (allToken.val() && evt.after.val() <= 15) {
-          console.log("token available");
-          const token = Object.keys(allToken.val());
-          return admin.messaging().sendToDevice(token, payload);
-        } else {
-          console.log("No token available");
-        }
-      });
-  }),
+      return admin
+        .database()
+        .ref("fcm-token")
+        .once("value")
+        .then((allToken) => {
+          if (allToken.val() && evt.after.val() == "success") {
+            console.log("token available");
+            const token = Object.keys(allToken.val());
+            return admin.messaging().sendToDevice(token, payload);
+          } else {
+            console.log("No token available");
+          }
+        });
+    }),
+  //CAGE2
 
-  //CAGE2222222
-
-  //bath_2_manual_indicator
-  cage2_bath_manual_indicator: functions.database
+  //cage_2/bath_2_manual_indicator
+  cage_2_bath_2_manual_indicator: functions.database
     .ref("cage_2/bath_2_manual_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "BATH SUCCESS.",
+          body: "Manual Bath Success!",
           badge: "1",
           sound: "default",
         },
@@ -297,7 +374,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "BATH FAILED.",
+          body: "Manual Bath Failed!",
           badge: "1",
           sound: "default",
         },
@@ -311,22 +388,24 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-  //bath_1_scheduled_indicator
-  cage2_bath_scheduled_indicator: functions.database
+  //cage_2/bath_2_scheduled_indicator
+  cage_2_bath_2_scheduled_indicator: functions.database
     .ref("cage_2/bath_2_scheduled_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "BATH SCHEDULE SUCCESS.",
+          body: "scheduled Bath Success!",
           badge: "1",
           sound: "default",
         },
@@ -334,7 +413,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "BATH FAILED.",
+          body: "scheduled Bath Failed!",
           badge: "1",
           sound: "default",
         },
@@ -348,23 +427,25 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
 
-  //feed_2_manual_indicator
-  cage2_feed_manual_indicator: functions.database
+  //cage_2_feed_2_manual_indicator
+  cage_2_feed_2_manual_indicator: functions.database
     .ref("cage_2/feed_2_manual_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "FEED SUCCESS.",
+          body: "Manual Feed Success!",
           badge: "1",
           sound: "default",
         },
@@ -372,7 +453,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "FEED FAILED.",
+          body: "Manual Feed Failed!",
           badge: "1",
           sound: "default",
         },
@@ -386,23 +467,24 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-
-  //feed_2_scheduled_indicator
-  cage2_feed_scheduled_indicator: functions.database
+  //cage_2/feed_2_scheduled_indicator
+  cage_2_feed_2_scheduled_indicator: functions.database
     .ref("cage_2/feed_2_scheduled_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "FEED SCHEDULE SUCCESS.",
+          body: "scheduled Feed Success!",
           badge: "1",
           sound: "default",
         },
@@ -410,7 +492,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "FEED SCHEDULE FAILED.",
+          body: "scheduled Feed Failed!",
           badge: "1",
           sound: "default",
         },
@@ -424,23 +506,24 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-
-  //wash_manual_indicator
-  cage2_wash_manual_indicator: functions.database
+  //cage_2/wash_2_manual_indicator
+  cage_2_wash_2_manual_indicator: functions.database
     .ref("cage_2/wash_2_manual_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "WASH SUCCESS.",
+          body: "Manual Wash Success!",
           badge: "1",
           sound: "default",
         },
@@ -448,7 +531,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "WASH FAILED.",
+          body: "Manual Wash Failed!",
           badge: "1",
           sound: "default",
         },
@@ -462,22 +545,24 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
           }
         });
     }),
-  //wash_2_scheduled_indicator
-  cage1_wash_scheduled_indicator: functions.database
+  //cage_2/wash_2_scheduled_indicator
+  cage_2_wash_2_scheduled_indicator: functions.database
     .ref("cage_2/wash_2_scheduled_indicator")
     .onUpdate((evt) => {
-      const payload1 = {
+      const payload = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "WASH SCHEDULE SUCCESS.",
+          body: "scheduled Wash Success!",
           badge: "1",
           sound: "default",
         },
@@ -485,7 +570,7 @@ module.exports = {
       const payload2 = {
         notification: {
           title: "CAGE 2 ALERT",
-          body: "WASH SCHEDULE FAILED.",
+          body: "scheduled Wash Failed!",
           badge: "1",
           sound: "default",
         },
@@ -499,11 +584,40 @@ module.exports = {
           if (allToken.val() && evt.after.val() == "success") {
             console.log("token available");
             const token = Object.keys(allToken.val());
-            return admin.messaging().sendToDevice(token, payload1);
+            return admin.messaging().sendToDevice(token, payload);
           } else if (allToken.val() && evt.after.val() == "failed") {
             console.log("token available");
             const token = Object.keys(allToken.val());
             return admin.messaging().sendToDevice(token, payload2);
+          } else {
+            console.log("No token available");
+          }
+        });
+    }),
+  //cage_2/wash_2_sensor_indicator
+  cage_2_wash_2_sensor_indicator: functions.database
+    .ref("cage_2/wash_2_sensor_indicator")
+    .onUpdate((evt) => {
+      const payload = {
+        notification: {
+          title: "CAGE 2 ALERT",
+          body: "Excreta Detected, Now Washing",
+          badge: "1",
+          sound: "default",
+        },
+      };
+
+      return admin
+        .database()
+        .ref("fcm-token")
+        .once("value")
+        .then((allToken) => {
+          if (allToken.val() && evt.after.val() == "success") {
+            console.log("token available");
+            const token = Object.keys(allToken.val());
+            return admin.messaging().sendToDevice(token, payload);
+          } else {
+            console.log("No token available");
           }
         });
     }),
